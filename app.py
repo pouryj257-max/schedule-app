@@ -622,9 +622,18 @@ def auto_import_default():
             except Exception as e:
                 print(f"[자동 임포트 실패] {e}")
 
-os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
-init_db()
-auto_import_default()
+# ── Health check ─────────────────────────────────────────────
+
+@app.route('/healthz')
+def healthz():
+    return 'ok', 200
+
+# ── Init ─────────────────────────────────────────────────────
+
+with app.app_context():
+    os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
+    init_db()
+    auto_import_default()
 
 if __name__ == '__main__':
     app.run(debug=True, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
