@@ -610,17 +610,19 @@ def api_session():
 
 def auto_import_default():
     """기본 엑셀 파일 자동 임포트"""
-    db = sqlite3.connect(DB_PATH)
-    count = db.execute("SELECT COUNT(*) FROM schedules").fetchone()[0]
-    db.close()
-    if count == 0:
-        default_path = os.path.join(os.path.dirname(__file__), '..', '2026년_일정.xlsx')
-        if os.path.exists(default_path):
-            try:
+    try:
+        db = sqlite3.connect(DB_PATH)
+        count = db.execute("SELECT COUNT(*) FROM schedules").fetchone()[0]
+        db.close()
+        if count == 0:
+            default_path = os.path.join(os.path.dirname(__file__), '..', '2026년_일정.xlsx')
+            if os.path.exists(default_path):
                 result = import_excel(default_path)
                 print(f"[자동 임포트] 사용자 {result['users']}명, 일정 {result['schedules']}건 등록")
-            except Exception as e:
-                print(f"[자동 임포트 실패] {e}")
+            else:
+                print("[자동 임포트] 엑셀 파일 없음 - 건너뜀")
+    except Exception as e:
+        print(f"[자동 임포트 실패] {e}")
 
 # ── Health check ─────────────────────────────────────────────
 
