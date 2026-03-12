@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>일정관리</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#4A90D9">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <!-- Header -->
+    <header id="app-header">
+        <div class="header-left">
+            <button id="btn-sidebar" class="icon-btn" title="메뉴">&#9776;</button>
+            <h1 class="app-title">일정관리</h1>
+        </div>
+        <div class="header-center">
+            <button id="btn-prev" class="nav-btn">&lt;</button>
+            <span id="current-month-label" class="month-label">2026년 3월</span>
+            <button id="btn-next" class="nav-btn">&gt;</button>
+            <button id="btn-today" class="today-btn">오늘</button>
+        </div>
+        <div class="header-right">
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="일정 검색..." />
+                <button id="btn-search" class="icon-btn">&#128269;</button>
+            </div>
+            <button id="btn-theme" class="icon-btn" title="테마 변경">&#9790;</button>
+            <div class="user-info">
+                <span id="user-name"></span>
+                <a href="/logout" class="logout-link">로그아웃</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <h2>메뉴</h2>
+            <button id="btn-close-sidebar" class="icon-btn">&times;</button>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="#" data-view="calendar" class="active">&#128197; 달력</a>
+            <a href="#" data-view="my-schedule">&#128198; 내 일정</a>
+            <a href="#" data-view="memo">&#128221; 메모</a>
+            <a href="#" data-view="sync">&#128260; 캘린더 연동</a>
+            <div id="admin-menu" style="display:none">
+                <hr>
+                <a href="#" data-view="admin-users">&#128101; 인원 관리</a>
+                <a href="#" data-view="admin-import">&#128229; 엑셀 가져오기</a>
+            </div>
+        </nav>
+        <!-- Mini calendar in sidebar -->
+        <div class="sidebar-mini-cal" id="mini-calendar"></div>
+    </div>
+    <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <!-- Calendar View -->
+        <div id="view-calendar" class="view active">
+            <div class="calendar-weekdays">
+                <div class="weekday sun">일</div>
+                <div class="weekday">월</div>
+                <div class="weekday">화</div>
+                <div class="weekday">수</div>
+                <div class="weekday">목</div>
+                <div class="weekday">금</div>
+                <div class="weekday sat">토</div>
+            </div>
+            <div id="calendar-grid" class="calendar-grid"></div>
+        </div>
+
+        <!-- My Schedule View -->
+        <div id="view-my-schedule" class="view">
+            <div class="schedule-list" id="schedule-list"></div>
+        </div>
+
+        <!-- Memo View -->
+        <div id="view-memo" class="view">
+            <div class="memo-container">
+                <div class="memo-header">
+                    <h2>메모</h2>
+                    <button id="btn-add-memo" class="btn-primary">+ 새 메모</button>
+                </div>
+                <div id="memo-list" class="memo-list"></div>
+            </div>
+        </div>
+
+        <!-- Sync View -->
+        <div id="view-sync" class="view">
+            <div class="sync-container">
+                <h2>외부 캘린더 연동</h2>
+                <p class="sync-desc">아래 iCal URL을 복사하여 Google 캘린더, 네이버 캘린더 등에 등록하면 일정이 자동으로 연동됩니다.</p>
+                <div class="sync-url-box">
+                    <label>iCal URL</label>
+                    <div class="url-copy-row">
+                        <input type="text" id="ical-url" readonly />
+                        <button id="btn-copy-url" class="btn-primary">복사</button>
+                    </div>
+                </div>
+                <div class="sync-instructions">
+                    <h3>Google 캘린더 연동 방법</h3>
+                    <ol>
+                        <li>Google 캘린더 열기</li>
+                        <li>좌측 "다른 캘린더" 옆 + 클릭</li>
+                        <li>"URL로 구독" 선택</li>
+                        <li>위 URL 붙여넣기</li>
+                    </ol>
+                    <h3>네이버 캘린더 연동 방법</h3>
+                    <ol>
+                        <li>네이버 캘린더 열기</li>
+                        <li>설정 > 캘린더 가져오기</li>
+                        <li>"URL로 가져오기" 선택</li>
+                        <li>위 URL 붙여넣기</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Users View -->
+        <div id="view-admin-users" class="view">
+            <div class="admin-container">
+                <div class="admin-header">
+                    <h2>인원 관리</h2>
+                    <button id="btn-add-user" class="btn-primary">+ 인원 추가</button>
+                </div>
+                <table class="user-table" id="user-table">
+                    <thead>
+                        <tr><th>사번</th><th>이름</th><th>조</th><th>관리</th></tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Admin Import View -->
+        <div id="view-admin-import" class="view">
+            <div class="admin-container">
+                <h2>엑셀 파일 가져오기</h2>
+                <p>엑셀 파일(.xlsx)을 업로드하면 사용자 및 일정이 자동으로 등록됩니다.</p>
+                <form id="import-form" enctype="multipart/form-data">
+                    <div class="file-upload-area" id="drop-zone">
+                        <p>&#128194; 파일을 드래그하거나 클릭하여 선택</p>
+                        <input type="file" name="file" id="excel-file" accept=".xlsx,.xls" />
+                    </div>
+                    <button type="submit" class="btn-primary btn-block" id="btn-import">가져오기</button>
+                </form>
+                <div id="import-result" class="import-result"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Day Detail Modal -->
+    <div id="modal-overlay" class="modal-overlay">
+        <div id="day-modal" class="modal">
+            <div class="modal-header">
+                <h3 id="modal-date-title"></h3>
+                <button id="btn-close-modal" class="icon-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-section">
+                    <h4>근무 일정</h4>
+                    <div id="modal-schedule-info"></div>
+                    <div class="schedule-edit-form" id="schedule-edit-form" style="display:none">
+                        <select id="edit-shift-type">
+                            <option value="">선택</option>
+                            <option value="D">D (주간)</option>
+                            <option value="S">S (석간)</option>
+                            <option value="G">G (야간)</option>
+                            <option value="휴">휴무</option>
+                            <option value="O">O (기타)</option>
+                            <option value="체">체력단련</option>
+                        </select>
+                        <input type="text" id="edit-detail" placeholder="상세 (지근, 특근, 연차 등)" />
+                        <div class="edit-actions">
+                            <button id="btn-save-schedule" class="btn-primary">저장</button>
+                            <button id="btn-cancel-edit" class="btn-secondary">취소</button>
+                        </div>
+                    </div>
+                    <button id="btn-edit-schedule" class="btn-small">수정</button>
+                    <button id="btn-delete-schedule" class="btn-small btn-danger" style="display:none">삭제</button>
+                </div>
+                <hr>
+                <div class="modal-section">
+                    <h4>메모</h4>
+                    <div id="modal-memos"></div>
+                    <textarea id="modal-memo-input" placeholder="메모를 입력하세요..."></textarea>
+                    <button id="btn-save-memo" class="btn-primary btn-small">메모 저장</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add User Modal -->
+    <div id="add-user-modal" class="modal-overlay" style="display:none">
+        <div class="modal" style="max-width:400px">
+            <div class="modal-header">
+                <h3>인원 추가</h3>
+                <button class="icon-btn btn-close-add-user">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>사번</label>
+                    <input type="text" id="new-emp-id" placeholder="사번 입력">
+                </div>
+                <div class="form-group">
+                    <label>이름</label>
+                    <input type="text" id="new-emp-name" placeholder="이름 입력">
+                </div>
+                <div class="form-group">
+                    <label>조</label>
+                    <input type="text" id="new-emp-team" placeholder="예: A조">
+                </div>
+                <div class="edit-actions">
+                    <button id="btn-confirm-add-user" class="btn-primary">추가</button>
+                    <button class="btn-secondary btn-close-add-user">취소</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Results Modal -->
+    <div id="search-modal" class="modal-overlay" style="display:none">
+        <div class="modal" style="max-width:600px">
+            <div class="modal-header">
+                <h3>검색 결과</h3>
+                <button id="btn-close-search" class="icon-btn">&times;</button>
+            </div>
+            <div class="modal-body" id="search-results"></div>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js');
+        }
+    </script>
+</body>
+</html>

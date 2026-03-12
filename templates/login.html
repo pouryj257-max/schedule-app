@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>일정관리 - 로그인</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#4A90D9">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', 'Malgun Gothic', sans-serif;
+            min-height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .login-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 40px;
+            width: 380px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .login-card h1 {
+            text-align: center;
+            margin-bottom: 8px;
+            font-size: 24px;
+            color: #333;
+        }
+        .login-card .subtitle {
+            text-align: center;
+            color: #888;
+            margin-bottom: 32px;
+            font-size: 14px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 15px;
+            transition: border-color 0.2s;
+            outline: none;
+        }
+        .form-group input:focus {
+            border-color: #667eea;
+        }
+        .btn-login {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .btn-login:hover { opacity: 0.9; }
+        .error-msg {
+            background: #fee;
+            color: #c00;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 13px;
+            text-align: center;
+        }
+        .login-icon {
+            text-align: center;
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <div class="login-icon">&#128197;</div>
+        <h1>일정관리 시스템</h1>
+        <p class="subtitle">사번으로 로그인하세요</p>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for cat, msg in messages %}
+        <div class="error-msg">{{ msg }}</div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+        <form method="POST">
+            <div class="form-group">
+                <label>사번</label>
+                <input type="text" name="employee_id" placeholder="사번 입력" required autofocus>
+            </div>
+            <div class="form-group">
+                <label>비밀번호</label>
+                <input type="password" name="password" placeholder="비밀번호 입력" required>
+            </div>
+            <button type="submit" class="btn-login">로그인</button>
+        </form>
+    </div>
+</body>
+</html>
